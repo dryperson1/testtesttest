@@ -1,1 +1,13 @@
 /target
+*.vep
+*.vep-journal
+*.vep-wal
+*.vep-shm
+/ui/node_modules
+/ui/dist
+/ui/src-tauri/gen
+/ui/src-tauri/icons/android
+/ui/src-tauri/icons/ios
+/ui/e2e/artifacts
+/blocks/src/target
+/.claude

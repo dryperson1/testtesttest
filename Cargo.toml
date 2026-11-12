@@ -1,35 +1,61 @@
-# The editor's built-in sound blocks, compiled to WebAssembly, and the small
-# kit they are written with. This is its own workspace: the editor's root
-# Cargo.toml excludes the `blocks` folder, and everything here is built for
-# wasm32v1-none (.cargo/config.toml) with the pinned compiler
-# (rust-toolchain.toml). README.md says how to build and where the files go.
 [workspace]
-resolver = "3"
-members = ["kit", "gain", "pan", "crossfade", "tone", "eq3"]
+resolver = "2"
+members = ["crates/*", "ui/src-tauri"]
+# The built-in sound blocks are compiled to WebAssembly by their own workspace.
+exclude = ["blocks"]
 
 [workspace.package]
-version = "1.0.0"
-edition = "2024"
+version = "0.1.0"
+edition = "2021"
+# zip 9 needs 1.88 and wasmi 2 needs 1.86 (the plug-in block runtime).
+rust-version = "1.88"
 publish = false
-license = "MIT OR Apache-2.0"
 
 [workspace.dependencies]
-block-kit = { path = "kit" }
-# Maths compiled into the module (blocks import nothing from the editor):
-# a pure-Rust port of musl's libm, so results are the same on every machine.
-# MIT. Pinned: a new release could change the last bits of results.
-libm = "=0.2.16"
+serde = { version = "1.0", features = ["derive"] }
+# `float_roundtrip`: a decimal read back from a project file or journal must be
+# the exact number that was written, or state hashes stop matching on reload.
+serde_json = { version = "1.0", features = ["float_roundtrip"] }
+ciborium = "0.2"
+schemars = "1.2"
+im = { version = "15.1", features = ["serde"] }
+thiserror = "2.0"
+blake3 = { version = "1.8", features = ["pure"] }
+rusqlite = { version = "0.40", features = ["bundled"] }
+clap = { version = "4.6", features = ["derive"] }
+proptest = "1.11"
+tempfile = "3.27"
 
-# Small, self-contained modules: optimised for size, one code unit, link-time
-# optimisation, no unwinding, no names or debug information in the file.
-[profile.release]
-opt-level = "s"
-lto = true
-codegen-units = 1
-panic = "abort"
-strip = true
-debug = false
-incremental = false
+core-time = { path = "crates/core-time" }
+core-ids = { path = "crates/core-ids" }
+core-model = { path = "crates/core-model" }
+core-commands = { path = "crates/core-commands" }
+core-query = { path = "crates/core-query" }
+core-project = { path = "crates/core-project" }
+core-edit = { path = "crates/core-edit" }
+blocks = { path = "crates/blocks" }
+media = { path = "crates/media" }
+render = { path = "crates/render" }
+render-recipe = { path = "crates/render-recipe" }
+cpu-render = { path = "crates/cpu-render" }
+audio = { path = "crates/audio" }
+playback = { path = "crates/playback" }
+jobs = { path = "crates/jobs" }
+cache = { path = "crates/cache" }
+ingest = { path = "crates/ingest" }
+export = { path = "crates/export" }
 
 [profile.dev]
-panic = "abort"
+opt-level = 1
+# Line numbers only. Full debug info took up 21.9 GB of a 49.4 GB build folder.
+debug = "line-tables-only"
+
+# The software renderer interprets shaders per pixel: 351 reference scenes must
+# be drawn in about two minutes by `cargo test` in the dev profile. It rounds
+# the same at every optimisation level (crates/cpu-render/README.md).
+[profile.dev.package.cpu-render]
+opt-level = 3
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
