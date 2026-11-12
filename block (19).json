@@ -1,0 +1,14 @@
+{
+  "$schema": "../../block-manifest.schema.json",
+  "manifest": 1,
+  "id": "chadfx.normal",
+  "version": "1.0.0",
+  "format": 1,
+  "name": "Normal",
+  "description": "The layer is simply laid over the picture beneath it. This is also what happens when a stack has no blend.",
+  "category": "compositing",
+  "kind": "video.blend",
+  "video": {
+    "fixed_function": "premultiplied_over"
+  }
+}

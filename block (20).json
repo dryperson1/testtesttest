@@ -1,0 +1,48 @@
+{
+  "$schema": "../../block-manifest.schema.json",
+  "manifest": 1,
+  "id": "chadfx.opacity",
+  "version": "1.0.0",
+  "format": 1,
+  "name": "Opacity",
+  "description": "Makes the layer more transparent. Several opacities in one stack multiply.",
+  "category": "compositing",
+  "kind": "video.filter",
+  "params": [
+    {
+      "id": "blend",
+      "type": "enum",
+      "default": "normal",
+      "options": [
+        { "value": "normal", "label": "Normal" },
+        { "value": "add", "label": "Add" },
+        { "value": "multiply", "label": "Multiply" },
+        { "value": "screen", "label": "Screen" },
+        { "value": "overlay", "label": "Overlay" },
+        { "value": "soft_light", "label": "Soft light" },
+        { "value": "hard_light", "label": "Hard light" },
+        { "value": "darken", "label": "Darken" },
+        { "value": "lighten", "label": "Lighten" },
+        { "value": "difference", "label": "Difference" }
+      ],
+      "label": "Blend mode",
+      "description": "Blend mode. Kept from older projects; it has never been drawn (the Blend block blends).",
+      "hidden": true
+    },
+    {
+      "id": "opacity",
+      "type": "float",
+      "default": 1.0,
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.01,
+      "unit": "fraction",
+      "label": "Opacity",
+      "description": "Blend opacity.",
+      "role": "opacity"
+    }
+  ],
+  "video": {
+    "stages": []
+  }
+}

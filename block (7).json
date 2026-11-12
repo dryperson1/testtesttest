@@ -1,0 +1,19 @@
+{
+  "$schema": "../../block-manifest.schema.json",
+  "manifest": 1,
+  "id": "chadfx.cross_dissolve",
+  "version": "1.0.0",
+  "format": 1,
+  "name": "Cross dissolve",
+  "description": "The incoming clip fades in over the outgoing one. With no clip on the other side it is a fade in from, or a fade out to, what is beneath.",
+  "category": "transitions",
+  "kind": "video.transition",
+  "default_for": "transition",
+  "transition": {
+    "style": "fade",
+    "incoming": [[0.0, 0.0], [1.0, 1.0]],
+    "outgoing": [[0.0, 1.0], [1.0, 1.0]],
+    "outgoing_alone": [[0.0, 1.0], [1.0, 0.0]],
+    "incoming_alone": [[0.0, 0.0], [1.0, 1.0]]
+  }
+}

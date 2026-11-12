@@ -1,0 +1,8 @@
+# Build for WebAssembly 1.0 with no host imports (wasm32v1-none), with a
+# 64 KiB stack instead of Rust's default 1 MiB, so the block's memory starts
+# at a few pages (the editor allows at most 64 pages, 4 MiB, at the start).
+[build]
+target = "wasm32v1-none"
+
+[target.wasm32v1-none]
+rustflags = ["-C", "link-arg=-zstack-size=65536"]

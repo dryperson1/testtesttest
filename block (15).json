@@ -1,0 +1,56 @@
+{
+  "$schema": "../../block-manifest.schema.json",
+  "manifest": 1,
+  "id": "chadfx.glow",
+  "version": "1.0.0",
+  "format": 1,
+  "name": "Glow",
+  "description": "Soft light that spreads from the bright parts of the picture.",
+  "category": "light",
+  "kind": "video.filter",
+  "params": [
+    {
+      "id": "threshold",
+      "type": "float",
+      "default": 0.75,
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.01,
+      "unit": "fraction",
+      "label": "Threshold",
+      "description": "How bright a part must be to glow, from 0 (everything) to 1 (only pure white)."
+    },
+    {
+      "id": "radius",
+      "type": "float",
+      "default": 24.0,
+      "min": 0.0,
+      "max": 200.0,
+      "step": 0.5,
+      "unit": "px",
+      "label": "Radius",
+      "description": "How far the glow spreads, in sequence pixels."
+    },
+    {
+      "id": "intensity",
+      "type": "float",
+      "default": 1.0,
+      "min": 0.0,
+      "max": 4.0,
+      "step": 0.01,
+      "unit": "multiplier",
+      "label": "Intensity",
+      "description": "How strong the glow is (1 = as bright as the parts it comes from)."
+    }
+  ],
+  "video": {
+    "source": "block.wgsl",
+    "stages": [],
+    "passes": [
+      { "name": "bright", "input": "layer", "output": "half", "scale": 0.5 },
+      { "name": "blur_h", "input": "half", "output": "tmp", "scale": 0.5 },
+      { "name": "blur_v", "input": "tmp", "output": "soft", "scale": 0.5 },
+      { "name": "combine", "inputs": ["layer", "soft"], "output": "result" }
+    ]
+  }
+}

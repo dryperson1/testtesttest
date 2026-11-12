@@ -1,0 +1,11 @@
+# The compiler the built-in sound blocks are built with. The checked-in
+# block.wasm files are compared byte for byte with a rebuild made by exactly
+# this version (crates/blocks/tests/wasm_stale.rs), so it is pinned.
+#
+# rustup treats "1.99.0" as its own toolchain name, separate from "stable"
+# even when stable is 1.99.0. The builder therefore uses any installed
+# toolchain whose compiler reports release 1.99.0 (see README.md).
+[toolchain]
+channel = "1.99.0"
+targets = ["wasm32v1-none"]
+profile = "minimal"

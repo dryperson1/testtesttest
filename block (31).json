@@ -1,0 +1,42 @@
+{
+  "$schema": "../../block-manifest.schema.json",
+  "manifest": 1,
+  "id": "chadfx.wipe",
+  "version": "1.0.0",
+  "format": 1,
+  "name": "Wipe",
+  "description": "The incoming clip sweeps across the outgoing one in a straight line, with a soft edge.",
+  "category": "transitions",
+  "kind": "video.transition",
+  "params": [
+    {
+      "id": "angle",
+      "type": "float",
+      "default": 0.0,
+      "min": -360.0,
+      "max": 360.0,
+      "step": 1.0,
+      "unit": "degrees",
+      "label": "Angle",
+      "description": "Direction the edge travels in degrees, clockwise; 0 sweeps from left to right."
+    },
+    {
+      "id": "softness",
+      "type": "float",
+      "default": 0.05,
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.01,
+      "unit": "fraction",
+      "label": "Softness",
+      "description": "Width of the soft edge as a share of the frame."
+    }
+  ],
+  "video": {
+    "source": "block.wgsl",
+    "stages": ["transition"]
+  },
+  "transition": {
+    "style": "mix"
+  }
+}

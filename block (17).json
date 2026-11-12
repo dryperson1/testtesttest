@@ -1,0 +1,54 @@
+{
+  "$schema": "../../block-manifest.schema.json",
+  "manifest": 1,
+  "id": "chadfx.mask",
+  "version": "1.0.0",
+  "format": 1,
+  "name": "Mask",
+  "description": "Cut the layer's alpha to a shape (a rectangle or an ellipse; a path is drawn as its bounding rectangle). Only the last mask of a stack is used.",
+  "category": "mask",
+  "kind": "video.filter",
+  "fold": "last",
+  "params": [
+    {
+      "id": "shape",
+      "type": "shape",
+      "default": { "type": "rect", "x": 0.0, "y": 0.0, "width": 1.0, "height": 1.0, "corner_radius": 0.0 },
+      "label": "Shape",
+      "description": "Mask geometry in normalized coordinates."
+    },
+    {
+      "id": "feather",
+      "type": "float",
+      "default": 0.0,
+      "min": 0.0,
+      "max": 1000.0,
+      "step": 1.0,
+      "unit": "px",
+      "label": "Feather",
+      "description": "Edge softness in pixels."
+    },
+    {
+      "id": "invert",
+      "type": "bool",
+      "default": false,
+      "label": "Invert",
+      "description": "Keep the outside instead of the inside."
+    },
+    {
+      "id": "opacity",
+      "type": "float",
+      "default": 1.0,
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.01,
+      "unit": "fraction",
+      "label": "Opacity",
+      "description": "Strength of the mask."
+    }
+  ],
+  "video": {
+    "source": "block.wgsl",
+    "stages": ["pixel"]
+  }
+}

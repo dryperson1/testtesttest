@@ -1,0 +1,31 @@
+{
+  "$schema": "../../block-manifest.schema.json",
+  "manifest": 1,
+  "id": "chadfx.gain",
+  "version": "1.0.0",
+  "format": 1,
+  "name": "Gain",
+  "description": "Volume adjustment, in decibels. Animated gain changes smoothly.",
+  "category": "levels",
+  "kind": "audio.filter",
+  "params": [
+    {
+      "id": "gain_db",
+      "type": "float",
+      "default": 0.0,
+      "min": -96.0,
+      "max": 24.0,
+      "step": 0.1,
+      "unit": "db",
+      "label": "Gain",
+      "description": "Gain in decibels.",
+      "role": "gain_db"
+    }
+  ],
+  "audio": {
+    "module": "block.wasm",
+    "warmup_ms": 0,
+    "latency_samples": 0,
+    "tail_ms": 0
+  }
+}

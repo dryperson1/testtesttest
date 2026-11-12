@@ -1,0 +1,1053 @@
+{
+  "$defs": {
+    "AudioSection": {
+      "additionalProperties": false,
+      "description": "The sound part of a block.",
+      "properties": {
+        "latency_samples": {
+          "default": 0,
+          "description": "The delay the block adds, in samples (recorded; not yet compensated).",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "module": {
+          "description": "The WebAssembly module in the package (for example `block.wasm`).",
+          "type": "string"
+        },
+        "tail_ms": {
+          "default": 0,
+          "description": "How long the block keeps sounding after its input stops, in\nmilliseconds (recorded; clips are not yet extended by it).",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "warmup_ms": {
+          "default": 0,
+          "description": "How much sound to run through the block after a jump before its\noutput is used, in milliseconds (at most 4000). 0 for blocks without\nmemory.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "module"
+      ],
+      "type": "object"
+    },
+    "BlockKind": {
+      "description": "What a block is: the media it works on and its role. Decides where its\nnodes may live and which stages it may declare.",
+      "oneOf": [
+        {
+          "const": "video.filter",
+          "description": "Changes a clip's picture (in clip, track and sequence effect lists of\npicture tracks).",
+          "type": "string"
+        },
+        {
+          "const": "video.transition",
+          "description": "How one picture clip turns into the next at a cut.",
+          "type": "string"
+        },
+        {
+          "const": "video.blend",
+          "description": "How a layer combines with the picture beneath it.",
+          "type": "string"
+        },
+        {
+          "const": "video.source",
+          "description": "Makes a picture from nothing (a clip's source).",
+          "type": "string"
+        },
+        {
+          "const": "audio.filter",
+          "description": "Changes sound (in clip, track and sequence effect lists of sound tracks).",
+          "type": "string"
+        },
+        {
+          "const": "audio.transition",
+          "description": "Crossfades sound at a cut.",
+          "type": "string"
+        },
+        {
+          "const": "audio.source",
+          "description": "Makes sound from nothing (a clip's source).",
+          "type": "string"
+        }
+      ]
+    },
+    "Bound": {
+      "anyOf": [
+        {
+          "description": "The same limit for every component.",
+          "format": "double",
+          "type": "number"
+        },
+        {
+          "description": "One limit per component.",
+          "items": {
+            "format": "double",
+            "type": "number"
+          },
+          "type": "array"
+        }
+      ],
+      "description": "A lower or upper limit: one number for every component, or one number\nper component (`[0, 0, -1]` for a vec3; `[x, y]` for a curve's points)."
+    },
+    "DefaultFor": {
+      "description": "Which default the block is for the editor.",
+      "oneOf": [
+        {
+          "const": "placement",
+          "description": "The block \"fit to frame\" adds when a stack has no scale role.",
+          "type": "string"
+        },
+        {
+          "const": "transition",
+          "description": "The transition the editor's \"add a cross dissolve\" gesture puts on an\nedge of a clip on a track of this block's kind (a `video.transition`\nfor picture tracks, an `audio.transition` for sound tracks). Only\ntransitions may say this.",
+          "type": "string"
+        }
+      ]
+    },
+    "EnumOption": {
+      "additionalProperties": false,
+      "description": "One choice of an `enum` parameter.",
+      "properties": {
+        "label": {
+          "$ref": "#/$defs/LocalizedText",
+          "description": "What people see."
+        },
+        "value": {
+          "description": "What is stored in the project: letters, digits, `_`, `.` and `-`,\nat most 64 bytes. Never change it without a migration.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "value",
+        "label"
+      ],
+      "type": "object"
+    },
+    "FixedFunction": {
+      "description": "A blend the GPU's fixed-function blending does, so no code is needed.",
+      "oneOf": [
+        {
+          "const": "premultiplied_over",
+          "description": "Premultiplied \"over\": the normal blend.",
+          "type": "string"
+        }
+      ]
+    },
+    "Fold": {
+      "description": "How several nodes of the same block in one stack combine.",
+      "oneOf": [
+        {
+          "const": "none",
+          "description": "Every node runs, in stack order (the default for plug-ins).",
+          "type": "string"
+        },
+        {
+          "const": "last",
+          "description": "Only the last enabled node of this block in the stack runs.",
+          "type": "string"
+        },
+        {
+          "const": "params",
+          "description": "All enabled nodes fold into one run at the position of the first;\neach parameter folds with its own rule.",
+          "type": "string"
+        }
+      ]
+    },
+    "LocalizedText": {
+      "anyOf": [
+        {
+          "description": "English text.",
+          "type": "string"
+        },
+        {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Text per language, keyed by a language tag such as \"en\", \"fr\" or\n\"pt-BR\". \"en\" is required.",
+          "type": "object"
+        }
+      ],
+      "description": "Text for people: either a plain string, which is English, or an object\nfrom language tag to text (`{\"en\": \"Glow\", \"fr\": \"Lueur\"}`), which must\ninclude English. The editor shows English for now."
+    },
+    "Migration": {
+      "additionalProperties": false,
+      "description": "How to bring nodes written for parameter format `from` to format `to`.",
+      "properties": {
+        "from": {
+          "description": "The parameter format the steps start from.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "steps": {
+          "default": [],
+          "description": "The steps, applied in order.",
+          "items": {
+            "$ref": "#/$defs/MigrationStep"
+          },
+          "type": "array"
+        },
+        "to": {
+          "description": "The parameter format the steps arrive at.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "from",
+        "to"
+      ],
+      "type": "object"
+    },
+    "MigrationStep": {
+      "description": "One step of a parameter migration.",
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "description": "Give a parameter a new id (its value and keyframes move with it).",
+          "properties": {
+            "rename": {
+              "additionalProperties": false,
+              "properties": {
+                "from": {
+                  "description": "The old id.",
+                  "type": "string"
+                },
+                "to": {
+                  "description": "The new id.",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "from",
+                "to"
+              ],
+              "type": "object"
+            }
+          },
+          "required": [
+            "rename"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Multiply a number (float, int, every component of vec2, vec3 and\ncolor), keyframes included.",
+          "properties": {
+            "scale": {
+              "additionalProperties": false,
+              "properties": {
+                "by": {
+                  "description": "The factor.",
+                  "format": "double",
+                  "type": "number"
+                },
+                "param": {
+                  "description": "The parameter.",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "param",
+                "by"
+              ],
+              "type": "object"
+            }
+          },
+          "required": [
+            "scale"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Add to a number (float, int, every component of vec2, vec3 and\ncolor), keyframes included.",
+          "properties": {
+            "offset": {
+              "additionalProperties": false,
+              "properties": {
+                "by": {
+                  "description": "What is added.",
+                  "format": "double",
+                  "type": "number"
+                },
+                "param": {
+                  "description": "The parameter.",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "param",
+                "by"
+              ],
+              "type": "object"
+            }
+          },
+          "required": [
+            "offset"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Replace enum values, keyframes included; values not in the map stay.",
+          "properties": {
+            "enum": {
+              "additionalProperties": false,
+              "properties": {
+                "map": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "description": "Old value to new value.",
+                  "type": "object"
+                },
+                "param": {
+                  "description": "The parameter.",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "param",
+                "map"
+              ],
+              "type": "object"
+            }
+          },
+          "required": [
+            "enum"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Give old nodes that do not have the parameter this value.",
+          "properties": {
+            "default": {
+              "additionalProperties": false,
+              "properties": {
+                "param": {
+                  "description": "The parameter.",
+                  "type": "string"
+                },
+                "value": {
+                  "description": "The value, in the JSON shape of the parameter's type."
+                }
+              },
+              "required": [
+                "param",
+                "value"
+              ],
+              "type": "object"
+            }
+          },
+          "required": [
+            "default"
+          ],
+          "type": "object"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Drop a parameter from old nodes.",
+          "properties": {
+            "remove": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "remove"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "ParamDecl": {
+      "additionalProperties": false,
+      "description": "One parameter of a block.",
+      "properties": {
+        "advanced": {
+          "description": "Hidden in the inspector's simple mode.",
+          "type": "boolean"
+        },
+        "components": {
+          "description": "Labels for the components of a vec2, vec3 or color (default X, Y /\nX, Y, Z / R, G, B, A).",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "default": {
+          "description": "The value a node without this parameter has, in the JSON shape of\nthe project's parameter values (`12.0`, `[0.5, 0.5]`,\n`{\"r\": 1, \"g\": 1, \"b\": 1, \"a\": 1}`, `\"gaussian\"`)."
+        },
+        "description": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LocalizedText"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "What the parameter does, for people and for the AI."
+        },
+        "fold": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ParamFold"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "How the parameter folds; required for every parameter when the\nblock's fold is `params`, refused otherwise."
+        },
+        "hidden": {
+          "description": "Never shown; kept on the node (used for inert legacy parameters).",
+          "type": "boolean"
+        },
+        "id": {
+          "description": "`[a-z][a-z0-9_]*`, at most 32 bytes, unique in the block, not a WGSL\nkeyword. It is stored in projects: never rename it without a\nmigration.",
+          "type": "string"
+        },
+        "keyframable": {
+          "description": "Whether the value can be animated with keyframes. Left out: yes for\nfloat, vec2, vec3, color, shape and curve, no otherwise. Transition\nparameters are never animated.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "label": {
+          "$ref": "#/$defs/LocalizedText",
+          "description": "The parameter's name for people."
+        },
+        "max": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Bound"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Highest allowed value: a number for every component, or one per\ncomponent."
+        },
+        "min": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Bound"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Lowest allowed value: a number for every component, or one per\ncomponent."
+        },
+        "options": {
+          "description": "The choices of an `enum` parameter (required for enums, refused\notherwise).",
+          "items": {
+            "$ref": "#/$defs/EnumOption"
+          },
+          "type": "array"
+        },
+        "role": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Role"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "What the parameter means to the editor."
+        },
+        "step": {
+          "description": "The inspector's step for this number.",
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "type": {
+          "$ref": "#/$defs/ParamType",
+          "description": "The type of the value."
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Unit"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The unit the number is shown in."
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "default",
+        "label"
+      ],
+      "type": "object"
+    },
+    "ParamFold": {
+      "description": "How one parameter folds when the block's fold is `params`.",
+      "oneOf": [
+        {
+          "const": "add",
+          "description": "Values are added, starting from the default.",
+          "type": "string"
+        },
+        {
+          "const": "multiply",
+          "description": "Values are multiplied, starting from the default.",
+          "type": "string"
+        },
+        {
+          "const": "last",
+          "description": "The last node's value is used.",
+          "type": "string"
+        }
+      ]
+    },
+    "ParamType": {
+      "description": "The type of a parameter's value.",
+      "oneOf": [
+        {
+          "const": "float",
+          "description": "A number (f64 in the project, f32 for the code).",
+          "type": "string"
+        },
+        {
+          "const": "int",
+          "description": "A whole number (i64 in the project, i32 for shaders).",
+          "type": "string"
+        },
+        {
+          "const": "bool",
+          "description": "True or false (0 or 1 for the code).",
+          "type": "string"
+        },
+        {
+          "const": "enum",
+          "description": "One of the declared `options` (its index for the code).",
+          "type": "string"
+        },
+        {
+          "const": "vec2",
+          "description": "Two numbers.",
+          "type": "string"
+        },
+        {
+          "const": "vec3",
+          "description": "Three numbers.",
+          "type": "string"
+        },
+        {
+          "const": "color",
+          "description": "A colour {r, g, b, a}.",
+          "type": "string"
+        },
+        {
+          "const": "shape",
+          "description": "A rectangle, ellipse or path in layer coordinates.",
+          "type": "string"
+        },
+        {
+          "const": "curve",
+          "description": "Points of a curve.",
+          "type": "string"
+        },
+        {
+          "const": "text",
+          "description": "Text.",
+          "type": "string"
+        },
+        {
+          "const": "blob",
+          "description": "A key of data kept in the project (stored as a `dense_curve` value).",
+          "type": "string"
+        },
+        {
+          "const": "artifact",
+          "description": "A key of large data kept in the machine's cache.",
+          "type": "string"
+        }
+      ]
+    },
+    "PassDecl": {
+      "additionalProperties": false,
+      "description": "One pass stage: a draw of its own for neighbourhood effects.",
+      "properties": {
+        "input": {
+          "description": "The one picture the pass reads: `layer`, or an earlier pass's output.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "inputs": {
+          "description": "The pictures the pass reads (at most 4), instead of `input`.",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "name": {
+          "description": "The WGSL function `fn <name>(uv, ctx, p) -> vec4<f32>`.",
+          "type": "string"
+        },
+        "output": {
+          "description": "The intermediate picture the pass writes. The one named `result`, or\nelse the last pass's output, is what is composited.",
+          "type": "string"
+        },
+        "scale": {
+          "description": "The intermediate's size as a share of the output size, 0.25 to 1\n(default 1). Set by the first pass that writes the intermediate.",
+          "format": "double",
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "output"
+      ],
+      "type": "object"
+    },
+    "Role": {
+      "description": "What a parameter means to the editor, so features of the editor can use\nit without knowing the block. A closed list in manifest\nversion 1.",
+      "oneOf": [
+        {
+          "const": "opacity",
+          "description": "Layer opacity (a float): every opacity value of every enabled node of\nthe stack is multiplied into the layer's opacity.",
+          "type": "string"
+        },
+        {
+          "const": "scale",
+          "description": "Placement: scale (a vec2).",
+          "type": "string"
+        },
+        {
+          "const": "position",
+          "description": "Placement: position (a vec2).",
+          "type": "string"
+        },
+        {
+          "const": "rotation",
+          "description": "Placement: rotation (a float).",
+          "type": "string"
+        },
+        {
+          "const": "anchor",
+          "description": "Placement: anchor (a vec2).",
+          "type": "string"
+        },
+        {
+          "const": "gain_db",
+          "description": "Sound level in decibels (a float).",
+          "type": "string"
+        },
+        {
+          "const": "pan",
+          "description": "Stereo position (a float).",
+          "type": "string"
+        }
+      ]
+    },
+    "Stage": {
+      "description": "A picture stage a block provides as a WGSL function.",
+      "oneOf": [
+        {
+          "const": "region",
+          "description": "`fn region(r, ctx, p) -> vec4<f32>`: the visible part of the layer (crop).",
+          "type": "string"
+        },
+        {
+          "const": "place",
+          "description": "`fn place(pos, luv, ctx, p) -> vec2<f32>`: where a corner goes.",
+          "type": "string"
+        },
+        {
+          "const": "pixel",
+          "description": "`fn pixel(c, uv, ctx, p) -> vec4<f32>`: colour, alpha, masks.",
+          "type": "string"
+        },
+        {
+          "const": "source",
+          "description": "`fn source(uv, ctx, p) -> vec4<f32>`: a generated picture.",
+          "type": "string"
+        },
+        {
+          "const": "blend",
+          "description": "`fn blend(src, dst, ctx, p) -> vec4<f32>`: a layer over what is beneath.",
+          "type": "string"
+        },
+        {
+          "const": "transition",
+          "description": "`fn transition(a, b, uv, ctx, p) -> vec4<f32>`: two clips into one.",
+          "type": "string"
+        }
+      ]
+    },
+    "TransitionSection": {
+      "additionalProperties": false,
+      "description": "A transition's style and, for fades, its opacity curves.\nEach curve is a list of `[progress, opacity]` points, both 0..1,\nprogress strictly rising from 0 to 1, evaluated piecewise-linearly.",
+      "properties": {
+        "incoming": {
+          "description": "Opacity of the incoming clip when there is an outgoing one.",
+          "items": {
+            "items": {
+              "format": "double",
+              "type": "number"
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "type": "array"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "incoming_alone": {
+          "description": "Opacity of the incoming clip when nothing precedes it (a fade in).",
+          "items": {
+            "items": {
+              "format": "double",
+              "type": "number"
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "type": "array"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "outgoing": {
+          "description": "Opacity of the outgoing clip when there is an incoming one.",
+          "items": {
+            "items": {
+              "format": "double",
+              "type": "number"
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "type": "array"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "outgoing_alone": {
+          "description": "Opacity of the outgoing clip when nothing follows it (a fade out).",
+          "items": {
+            "items": {
+              "format": "double",
+              "type": "number"
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "type": "array"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "style": {
+          "$ref": "#/$defs/TransitionStyle",
+          "description": "`fade` (picture only, no code) or `mix` (code combines both clips)."
+        }
+      },
+      "required": [
+        "style"
+      ],
+      "type": "object"
+    },
+    "TransitionStyle": {
+      "description": "How a transition draws.",
+      "oneOf": [
+        {
+          "const": "fade",
+          "description": "No code: the editor draws both clips with opacities from the curves.",
+          "type": "string"
+        },
+        {
+          "const": "mix",
+          "description": "The block's code combines both clips.",
+          "type": "string"
+        }
+      ]
+    },
+    "Unit": {
+      "description": "The unit a number is shown in. It is for people: the stored value is\nwhat the block reads. `fraction` is a share of something, 0..1 (shown as\na percentage); `percent` is stored as 0..100.",
+      "oneOf": [
+        {
+          "const": "px",
+          "description": "Sequence pixels.",
+          "type": "string"
+        },
+        {
+          "const": "degrees",
+          "description": "Degrees of angle.",
+          "type": "string"
+        },
+        {
+          "const": "percent",
+          "description": "Percent, stored as 0..100.",
+          "type": "string"
+        },
+        {
+          "const": "fraction",
+          "description": "A share, stored as 0..1.",
+          "type": "string"
+        },
+        {
+          "const": "db",
+          "description": "Decibels.",
+          "type": "string"
+        },
+        {
+          "const": "ms",
+          "description": "Milliseconds.",
+          "type": "string"
+        },
+        {
+          "const": "seconds",
+          "description": "Seconds.",
+          "type": "string"
+        },
+        {
+          "const": "hz",
+          "description": "Hertz.",
+          "type": "string"
+        },
+        {
+          "const": "stops",
+          "description": "Photographic stops (powers of two).",
+          "type": "string"
+        },
+        {
+          "const": "multiplier",
+          "description": "A factor: 1 leaves things as they are.",
+          "type": "string"
+        },
+        {
+          "const": "none",
+          "description": "A plain number without a unit.",
+          "type": "string"
+        }
+      ]
+    },
+    "VideoSection": {
+      "additionalProperties": false,
+      "description": "The picture part of a block.",
+      "properties": {
+        "fixed_function": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FixedFunction"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "A blend done by the GPU's blending hardware (only the editor's own\nnormal blend may say this)."
+        },
+        "passes": {
+          "description": "Pass stages, run in order (filters only; at most 4).",
+          "items": {
+            "$ref": "#/$defs/PassDecl"
+          },
+          "type": "array"
+        },
+        "source": {
+          "description": "The WGSL file in the package (for example `block.wgsl`); required\nwhen the block declares stages or passes.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "stages": {
+          "default": [],
+          "description": "The stages the WGSL provides.",
+          "items": {
+            "$ref": "#/$defs/Stage"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "block.json: what a ChadFX effect block is, what parameters it has and what code it provides.",
+  "properties": {
+    "$schema": {
+      "description": "Where an author's text editor finds this schema (for example\n\"../block-manifest.schema.json\"). Ignored by the editor.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "audio": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/AudioSection"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "The sound part (sound blocks only)."
+    },
+    "author": {
+      "description": "Who made the block (shown only).",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "category": {
+      "description": "A group for menus (\"light\", \"blur\").",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "default_for": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DefaultFor"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "The editor's default block for something (only the editor's own\nblocks)."
+    },
+    "description": {
+      "$ref": "#/$defs/LocalizedText",
+      "description": "What the block does, for people and for the AI."
+    },
+    "fold": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Fold"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "How several nodes of this block in one stack combine (default\n`none`; blends are always `last`)."
+    },
+    "format": {
+      "description": "The version of the parameter format (1 or more). Nodes store it;\nraise it, with a migration, whenever parameters change meaning.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "homepage": {
+      "description": "A web page about the block (shown only, never opened by the editor\non its own).",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "id": {
+      "description": "The block's id, `namespace.name` (`acme.glow`), at most 64 bytes.\n`chadfx.` is reserved for the editor's own blocks, `core.` for core\nnodes.",
+      "type": "string"
+    },
+    "kind": {
+      "$ref": "#/$defs/BlockKind",
+      "description": "What the block is."
+    },
+    "license": {
+      "description": "The block's licence (shown only).",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "manifest": {
+      "description": "The manifest format version: 1.",
+      "format": "uint32",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "migrations": {
+      "description": "How to convert parameters of older formats, oldest first.",
+      "items": {
+        "$ref": "#/$defs/Migration"
+      },
+      "type": "array"
+    },
+    "name": {
+      "$ref": "#/$defs/LocalizedText",
+      "description": "The block's name."
+    },
+    "params": {
+      "description": "The parameters, in the order the inspector shows them.",
+      "items": {
+        "$ref": "#/$defs/ParamDecl"
+      },
+      "type": "array"
+    },
+    "transition": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TransitionSection"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "The transition's style (transitions only)."
+    },
+    "version": {
+      "description": "The block's version for people, a semantic version (`1.2.0`).",
+      "type": "string"
+    },
+    "video": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/VideoSection"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "The picture part (picture blocks only)."
+    }
+  },
+  "required": [
+    "manifest",
+    "id",
+    "version",
+    "format",
+    "name",
+    "description",
+    "kind"
+  ],
+  "title": "ChadFX block manifest",
+  "type": "object"
+}

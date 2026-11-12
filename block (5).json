@@ -1,0 +1,74 @@
+{
+  "$schema": "../../block-manifest.schema.json",
+  "manifest": 1,
+  "id": "chadfx.crop",
+  "version": "1.0.0",
+  "format": 1,
+  "name": "Crop",
+  "description": "Crop edges of the layer, in normalized fractions. Only the last crop of a stack is used.",
+  "category": "layout",
+  "kind": "video.filter",
+  "fold": "last",
+  "params": [
+    {
+      "id": "left",
+      "type": "float",
+      "default": 0.0,
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.01,
+      "unit": "fraction",
+      "label": "Left",
+      "description": "Fraction cropped from the left edge."
+    },
+    {
+      "id": "right",
+      "type": "float",
+      "default": 0.0,
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.01,
+      "unit": "fraction",
+      "label": "Right",
+      "description": "Fraction cropped from the right edge."
+    },
+    {
+      "id": "top",
+      "type": "float",
+      "default": 0.0,
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.01,
+      "unit": "fraction",
+      "label": "Top",
+      "description": "Fraction cropped from the top edge."
+    },
+    {
+      "id": "bottom",
+      "type": "float",
+      "default": 0.0,
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.01,
+      "unit": "fraction",
+      "label": "Bottom",
+      "description": "Fraction cropped from the bottom edge."
+    },
+    {
+      "id": "feather",
+      "type": "float",
+      "default": 0.0,
+      "min": 0.0,
+      "max": 1000.0,
+      "step": 1.0,
+      "unit": "px",
+      "label": "Feather",
+      "description": "Softness of the crop edge in pixels. Kept from older projects; it has never been drawn.",
+      "hidden": true
+    }
+  ],
+  "video": {
+    "source": "block.wgsl",
+    "stages": ["region"]
+  }
+}

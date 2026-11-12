@@ -1,0 +1,6 @@
+# The recipe of block.wasm in this folder: BLAKE3 of what it is built from
+# (Cargo.toml, Cargo.lock, rust-toolchain.toml, .cargo/config.toml and
+# src/), checked by the editor's crates/blocks/tests/template.rs.
+# Rebuild with: CHADFX_WRITE_TEMPLATE_BLOCK=1 cargo test -p blocks --test template
+# (delete this file in a copy of the template made for a block of your own)
+0465aa26a1b9f66e53f54107bdead7f3cfb8509deeaedbac43f60be3df64f94d

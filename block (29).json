@@ -1,0 +1,76 @@
+{
+  "$schema": "../../block-manifest.schema.json",
+  "manifest": 1,
+  "id": "chadfx.transform",
+  "version": "1.0.0",
+  "format": 1,
+  "name": "Transform",
+  "description": "Position, scale, rotation and opacity of the layer. Only the last transform of a stack places the layer; the opacities of all of them multiply.",
+  "category": "layout",
+  "kind": "video.filter",
+  "fold": "last",
+  "default_for": "placement",
+  "params": [
+    {
+      "id": "position",
+      "type": "vec2",
+      "default": [0.0, 0.0],
+      "step": 1.0,
+      "unit": "px",
+      "label": "Position",
+      "description": "Offset from the frame centre in pixels.",
+      "role": "position"
+    },
+    {
+      "id": "scale",
+      "type": "vec2",
+      "default": [1.0, 1.0],
+      "min": 0.0,
+      "max": 100.0,
+      "step": 0.01,
+      "unit": "multiplier",
+      "label": "Scale",
+      "description": "Scale factors (1 = original size).",
+      "role": "scale"
+    },
+    {
+      "id": "rotation",
+      "type": "float",
+      "default": 0.0,
+      "step": 0.1,
+      "unit": "degrees",
+      "label": "Rotation",
+      "description": "Rotation in degrees, clockwise.",
+      "role": "rotation"
+    },
+    {
+      "id": "anchor",
+      "type": "vec2",
+      "default": [0.5, 0.5],
+      "min": -1.0,
+      "max": 2.0,
+      "step": 0.01,
+      "unit": "fraction",
+      "label": "Anchor",
+      "description": "Pivot point in normalized layer coordinates.",
+      "advanced": true,
+      "role": "anchor"
+    },
+    {
+      "id": "opacity",
+      "type": "float",
+      "default": 1.0,
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.01,
+      "unit": "fraction",
+      "label": "Opacity",
+      "description": "Layer opacity.",
+      "role": "opacity"
+    }
+  ],
+  "video": {
+    "source": "block.wgsl",
+    "stages": ["place"]
+  }
+}

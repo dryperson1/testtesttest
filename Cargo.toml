@@ -1,0 +1,35 @@
+# The editor's built-in sound blocks, compiled to WebAssembly, and the small
+# kit they are written with. This is its own workspace: the editor's root
+# Cargo.toml excludes the `blocks` folder, and everything here is built for
+# wasm32v1-none (.cargo/config.toml) with the pinned compiler
+# (rust-toolchain.toml). README.md says how to build and where the files go.
+[workspace]
+resolver = "3"
+members = ["kit", "gain", "pan", "crossfade", "tone", "eq3"]
+
+[workspace.package]
+version = "1.0.0"
+edition = "2024"
+publish = false
+license = "MIT OR Apache-2.0"
+
+[workspace.dependencies]
+block-kit = { path = "kit" }
+# Maths compiled into the module (blocks import nothing from the editor):
+# a pure-Rust port of musl's libm, so results are the same on every machine.
+# MIT. Pinned: a new release could change the last bits of results.
+libm = "=0.2.16"
+
+# Small, self-contained modules: optimised for size, one code unit, link-time
+# optimisation, no unwinding, no names or debug information in the file.
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+debug = false
+incremental = false
+
+[profile.dev]
+panic = "abort"

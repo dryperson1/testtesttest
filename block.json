@@ -1,0 +1,35 @@
+{
+  "$schema": "../../block-manifest.schema.json",
+  "manifest": 1,
+  "id": "chadfx.blend",
+  "version": "1.0.0",
+  "format": 1,
+  "name": "Blend",
+  "description": "How the layer combines with the picture beneath it. Only the last blend of a stack is used; without one, the layer is simply laid over.",
+  "category": "compositing",
+  "kind": "video.blend",
+  "params": [
+    {
+      "id": "mode",
+      "type": "enum",
+      "default": "multiply",
+      "options": [
+        { "value": "add", "label": "Add" },
+        { "value": "multiply", "label": "Multiply" },
+        { "value": "screen", "label": "Screen" },
+        { "value": "overlay", "label": "Overlay" },
+        { "value": "soft_light", "label": "Soft light" },
+        { "value": "hard_light", "label": "Hard light" },
+        { "value": "darken", "label": "Darken" },
+        { "value": "lighten", "label": "Lighten" },
+        { "value": "difference", "label": "Difference" }
+      ],
+      "label": "Mode",
+      "description": "How the colours combine: add and screen lighten, multiply darkens, overlay and the lights add contrast, darken and lighten keep the darker or lighter, difference subtracts."
+    }
+  ],
+  "video": {
+    "source": "block.wgsl",
+    "stages": ["blend"]
+  }
+}

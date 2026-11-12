@@ -1,0 +1,42 @@
+{
+  "$schema": "../../block-manifest.schema.json",
+  "manifest": 1,
+  "id": "chadfx.tone",
+  "version": "1.0.0",
+  "format": 1,
+  "name": "Tone",
+  "description": "A steady sine tone, for testing sound.",
+  "category": "generators",
+  "kind": "audio.source",
+  "params": [
+    {
+      "id": "frequency",
+      "type": "float",
+      "default": 440.0,
+      "min": 20.0,
+      "max": 20000.0,
+      "step": 1.0,
+      "unit": "hz",
+      "keyframable": false,
+      "label": "Frequency",
+      "description": "Pitch of the tone in hertz. It cannot be animated: the tone is computed from the time alone, so a changing pitch would jump."
+    },
+    {
+      "id": "amplitude",
+      "type": "float",
+      "default": 0.25,
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.01,
+      "unit": "fraction",
+      "label": "Amplitude",
+      "description": "Peak level as a share of full scale."
+    }
+  ],
+  "audio": {
+    "module": "block.wasm",
+    "warmup_ms": 0,
+    "latency_samples": 0,
+    "tail_ms": 0
+  }
+}

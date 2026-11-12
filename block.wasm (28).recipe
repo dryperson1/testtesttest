@@ -1,0 +1,6 @@
+# The recipe of block.wasm in this folder: BLAKE3 of what it is built from
+# (blocks/src: Cargo.toml, Cargo.lock, rust-toolchain.toml,
+# .cargo/config.toml, kit/ and tone/), checked by
+# crates/blocks/tests/wasm_stale.rs. Rebuild with:
+# CHADFX_WRITE_SOUND_BLOCKS=1 cargo test -p blocks --test wasm_stale
+552149427d6cb90614fdcaf9aedddaf3189964c256c2e8421e2237ec14909f8e

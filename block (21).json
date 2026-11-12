@@ -1,0 +1,31 @@
+{
+  "$schema": "../../block-manifest.schema.json",
+  "manifest": 1,
+  "id": "chadfx.pan",
+  "version": "1.0.0",
+  "format": 1,
+  "name": "Pan",
+  "description": "Stereo position, with equal-power panning (stereo sound only; other layouts are left as they are). Animated pan moves smoothly.",
+  "category": "levels",
+  "kind": "audio.filter",
+  "params": [
+    {
+      "id": "pan",
+      "type": "float",
+      "default": 0.0,
+      "min": -1.0,
+      "max": 1.0,
+      "step": 0.01,
+      "unit": "none",
+      "label": "Pan",
+      "description": "-1 = left, 0 = centre, 1 = right.",
+      "role": "pan"
+    }
+  ],
+  "audio": {
+    "module": "block.wasm",
+    "warmup_ms": 0,
+    "latency_samples": 0,
+    "tail_ms": 0
+  }
+}

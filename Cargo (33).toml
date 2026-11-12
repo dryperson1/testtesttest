@@ -1,0 +1,13 @@
+[package]
+name = "crossfade"
+description = "chadfx.crossfade: today's straight-line crossfade between two clips"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+block-kit = { workspace = true }

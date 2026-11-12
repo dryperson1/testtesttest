@@ -1,0 +1,44 @@
+{
+  "$schema": "../../block-manifest.schema.json",
+  "manifest": 1,
+  "id": "example.iris",
+  "version": "1.0.0",
+  "format": 1,
+  "name": "Iris",
+  "description": "The incoming clip appears in a circle that grows from a point until it covers the whole frame, with a soft edge.",
+  "category": "transitions",
+  "kind": "video.transition",
+  "params": [
+    {
+      "id": "center",
+      "type": "vec2",
+      "default": [0.5, 0.5],
+      "min": 0.0,
+      "max": 1.0,
+      "step": 0.01,
+      "unit": "fraction",
+      "label": "Centre",
+      "description": "Where the circle opens, as a share of the frame's width and height: 0.5, 0.5 is the middle, 0, 0 the top left corner."
+    },
+    {
+      "id": "softness",
+      "type": "float",
+      "default": 0.05,
+      "min": 0.0,
+      "max": 0.5,
+      "step": 0.01,
+      "unit": "fraction",
+      "label": "Softness",
+      "description": "Width of the circle's soft edge as a share of the frame's longer side; 0 gives a hard edge."
+    }
+  ],
+  "video": {
+    "source": "block.wgsl",
+    "stages": ["transition"]
+  },
+  "transition": {
+    "style": "mix"
+  },
+  "author": "Example Author",
+  "license": "MIT OR Apache-2.0"
+}

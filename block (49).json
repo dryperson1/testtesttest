@@ -1,0 +1,46 @@
+{
+  "$schema": "../../block-manifest.schema.json",
+  "manifest": 1,
+  "id": "example.gradient",
+  "version": "1.0.0",
+  "format": 1,
+  "name": "Gradient",
+  "description": "Fills the frame with a smooth blend between two colours, from top to bottom or from left to right.",
+  "category": "generators",
+  "kind": "video.source",
+  "params": [
+    {
+      "id": "start_color",
+      "type": "color",
+      "default": { "r": 0.1, "g": 0.2, "b": 0.5, "a": 1.0 },
+      "min": 0.0,
+      "max": 1.0,
+      "keyframable": true,
+      "label": "Start colour",
+      "description": "The colour at the top (or at the left), as footage carries it: sRGB values from 0 to 1, and alpha."
+    },
+    {
+      "id": "end_color",
+      "type": "color",
+      "default": { "r": 0.9, "g": 0.6, "b": 0.3, "a": 1.0 },
+      "min": 0.0,
+      "max": 1.0,
+      "keyframable": true,
+      "label": "End colour",
+      "description": "The colour at the bottom (or at the right), as footage carries it: sRGB values from 0 to 1, and alpha."
+    },
+    {
+      "id": "horizontal",
+      "type": "bool",
+      "default": false,
+      "label": "Left to right",
+      "description": "On: the colours blend from left to right. Off: from top to bottom."
+    }
+  ],
+  "video": {
+    "source": "block.wgsl",
+    "stages": ["source"]
+  },
+  "author": "Example Author",
+  "license": "MIT OR Apache-2.0"
+}

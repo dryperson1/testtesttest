@@ -1,0 +1,26 @@
+{
+  "$schema": "../../block-manifest.schema.json",
+  "manifest": 1,
+  "id": "chadfx.solid_color",
+  "version": "1.0.0",
+  "format": 1,
+  "name": "Solid colour",
+  "description": "Fills the whole frame with one colour.",
+  "category": "generators",
+  "kind": "video.source",
+  "params": [
+    {
+      "id": "color",
+      "type": "color",
+      "default": { "r": 1.0, "g": 1.0, "b": 1.0, "a": 1.0 },
+      "min": 0.0,
+      "max": 1.0,
+      "label": "Colour",
+      "description": "The colour, as footage carries it (sRGB values from 0 to 1, and alpha)."
+    }
+  ],
+  "video": {
+    "source": "block.wgsl",
+    "stages": ["source"]
+  }
+}

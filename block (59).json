@@ -1,0 +1,40 @@
+{
+  "$schema": "../../block-manifest.schema.json",
+  "manifest": 1,
+  "id": "example.width",
+  "version": "1.0.0",
+  "format": 1,
+  "name": "Stereo width",
+  "description": "Makes stereo sound narrower or wider: 0 is mono, 1 leaves it exactly as it is, 2 doubles the difference between left and right. Can also swap the two channels. Sound that is not stereo is left as it is.",
+  "category": "sound",
+  "kind": "audio.filter",
+  "params": [
+    {
+      "id": "width",
+      "type": "float",
+      "default": 1.0,
+      "min": 0.0,
+      "max": 2.0,
+      "step": 0.01,
+      "unit": "multiplier",
+      "keyframable": true,
+      "label": "Width",
+      "description": "How far apart left and right are: 0 makes the sound mono, 1 leaves it as it is, 2 doubles the difference between the channels."
+    },
+    {
+      "id": "swap",
+      "type": "bool",
+      "default": false,
+      "label": "Swap left and right",
+      "description": "On: the left and right channels change places, after the width is applied."
+    }
+  ],
+  "audio": {
+    "module": "block.wasm",
+    "warmup_ms": 0,
+    "latency_samples": 0,
+    "tail_ms": 0
+  },
+  "author": "Example Author",
+  "license": "MIT OR Apache-2.0"
+}

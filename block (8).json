@@ -1,0 +1,21 @@
+{
+  "$schema": "../../block-manifest.schema.json",
+  "manifest": 1,
+  "id": "chadfx.crossfade",
+  "version": "1.0.0",
+  "format": 1,
+  "name": "Crossfade",
+  "description": "The outgoing sound fades out while the incoming one fades in, in straight lines. With no clip on the other side it is a fade in or a fade out.",
+  "category": "transitions",
+  "kind": "audio.transition",
+  "default_for": "transition",
+  "transition": {
+    "style": "mix"
+  },
+  "audio": {
+    "module": "block.wasm",
+    "warmup_ms": 0,
+    "latency_samples": 0,
+    "tail_ms": 0
+  }
+}

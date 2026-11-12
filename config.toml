@@ -1,0 +1,8 @@
+# Every crate here is built for WebAssembly 1.0 with no host imports
+# (wasm32v1-none). The stack is 64 KiB instead of Rust's default 1 MiB, so a
+# block's memory starts at a few pages (contract 8.4: at most 64 pages).
+[build]
+target = "wasm32v1-none"
+
+[target.wasm32v1-none]
+rustflags = ["-C", "link-arg=-zstack-size=65536"]

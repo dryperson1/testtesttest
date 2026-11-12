@@ -1,0 +1,10 @@
+[package]
+name = "block-kit"
+description = "Write a ChadFX sound block in Rust: the WebAssembly contract (ABI version 1) as safe types and three export macros"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+
+[dependencies]
+libm = { workspace = true }

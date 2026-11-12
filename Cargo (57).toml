@@ -1,0 +1,40 @@
+# A ChadFX sound block in Rust, compiled to WebAssembly (wasm32v1-none).
+#
+# This folder is a cargo project of its own (the empty [workspace] table
+# below), so it builds wherever it is copied. README.md says how to build it
+# and where the compiled file goes.
+[package]
+name = "example-width"
+description = "example.width: a ChadFX sound block that makes stereo sound narrower or wider (the template for sound filters)"
+version = "1.0.0"
+edition = "2024"
+publish = false
+license = "MIT OR Apache-2.0"
+
+# The compiled module is target/wasm32v1-none/release/block.wasm.
+[lib]
+name = "block"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+# Maths for a block (sin, pow, exp, ...), compiled into the module: a block
+# may import nothing from the editor, so it brings its own. A pure-Rust port
+# of musl's libm, the same results on every machine. MIT or Apache-2.0.
+# Pinned: a new release could change the last bits of results. This example
+# needs no maths; keep it for your own block, or remove it.
+libm = "=0.2.16"
+
+[workspace]
+
+# A small, self-contained module: optimised for size, one code unit,
+# link-time optimisation, no names or debug information in the file. The
+# wasm32v1-none target never unwinds: a panic stops the call with a trap,
+# which the editor reports and which turns the block off.
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true
+debug = false
+incremental = false

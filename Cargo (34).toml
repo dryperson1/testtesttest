@@ -1,0 +1,13 @@
+[package]
+name = "eq3"
+description = "chadfx.eq3: three-band equalizer (low shelf, peak, high shelf)"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+block-kit = { workspace = true }
